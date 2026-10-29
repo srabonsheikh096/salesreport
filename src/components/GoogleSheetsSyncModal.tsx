@@ -168,30 +168,30 @@ export const GoogleSheetsSyncModal: React.FC<Props> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
-      <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
+      <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-3 sm:my-6 max-h-[92vh] flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-green-700 text-white flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-white/10 rounded-lg">
-              <FileSpreadsheet className="w-6 h-6 text-white" />
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-green-700 text-white flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="p-2 bg-white/10 rounded-lg shrink-0">
+              <FileSpreadsheet className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
-            <div>
-              <h2 className="text-lg font-bold">Google Sheets ইন্টিগ্রেশন ও লাইভ সিন্ক</h2>
-              <p className="text-xs text-emerald-100">
-                আপনার প্রোডাক্ট, দৈনিক বিক্রয় ও মাসিক লাভ-ক্ষতির লাইভ গুগল শিট
+            <div className="min-w-0">
+              <h2 className="text-base sm:text-lg font-bold truncate">Google Sheets ইন্টিগ্রেশন ও লাইভ সিন্ক</h2>
+              <p className="text-[11px] sm:text-xs text-emerald-100 truncate">
+                প্রোডাক্ট, বিক্রয় ও মাসিক লাভ-ক্ষতির লাইভ স্প্রেডশিট ও বাটন
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 text-white/80 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
+            className="p-1 text-white/80 hover:text-white rounded-lg hover:bg-white/10 transition-colors shrink-0"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto flex-1">
           {/* Auth section */}
           {!user ? (
             <div className="p-6 bg-slate-50 border border-slate-200 rounded-2xl text-center space-y-4">
@@ -317,21 +317,21 @@ export const GoogleSheetsSyncModal: React.FC<Props> = ({
                 </div>
               </div>
 
-              <div className="pt-2 flex flex-wrap items-center justify-between gap-3">
+              <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={handleSyncExisting}
                   disabled={isSyncing || !user}
-                  className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs rounded-xl flex items-center gap-2 shadow-xs transition-all disabled:opacity-50"
+                  className="w-full sm:w-auto px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-xs transition-all disabled:opacity-50"
                 >
                   <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-                  {isSyncing ? 'শিট আপডেট হচ্ছে...' : 'এখনই শিটে সব ডেটা সিন্ক করুন'}
+                  {isSyncing ? 'থিম ও বাটন সহ শিট আপডেট হচ্ছে...' : 'থিম ও বাটন সহ শিটে সব ডেটা সিন্ক করুন'}
                 </button>
 
                 <button
                   type="button"
                   onClick={() => onUpdateSheetMeta(null)}
-                  className="text-xs text-rose-400 hover:text-rose-300 underline"
+                  className="text-xs text-rose-400 hover:text-rose-300 underline text-center sm:text-right"
                 >
                   শিট আনলিঙ্ক করুন
                 </button>
@@ -339,14 +339,14 @@ export const GoogleSheetsSyncModal: React.FC<Props> = ({
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="p-5 border-2 border-dashed border-emerald-300 rounded-2xl bg-emerald-50/40 text-center space-y-3">
+              <div className="p-4 sm:p-5 border-2 border-dashed border-emerald-300 rounded-2xl bg-emerald-50/40 text-center space-y-3">
                 <FileSpreadsheet className="w-10 h-10 text-emerald-600 mx-auto" />
                 <div>
                   <h4 className="text-sm font-bold text-slate-900">
                     কোন গুগল শিট লিঙ্ক করা নেই
                   </h4>
                   <p className="text-xs text-slate-600 max-w-sm mx-auto mt-1">
-                    নিচের বাটনে চাপ দিলে আপনার গুগল ড্রাইভে ৩টি ট্যাব বিশিষ্ট সম্পূর্ণ রেডিমেড একটি স্প্রেডশিট স্বয়ংক্রিয়ভাবে তৈরি হবে।
+                    নিচের বাটনে চাপ দিলে আপনার গুগল ড্রাইভে ৩টি ট্যাব বিশিষ্ট সম্পূর্ণ রেডিমেড ডিজাইন ও নেভিগেশন বাটন সহ স্প্রেডশিট স্বয়ংক্রিয়ভাবে তৈরি হবে।
                   </p>
                 </div>
 
@@ -354,10 +354,10 @@ export const GoogleSheetsSyncModal: React.FC<Props> = ({
                   type="button"
                   onClick={handleCreateNewSheet}
                   disabled={isCreatingSheet || !user}
-                  className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl inline-flex items-center gap-2 shadow-sm transition-all disabled:opacity-50"
+                  className="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl inline-flex items-center justify-center gap-2 shadow-sm transition-all disabled:opacity-50"
                 >
                   <Plus className="w-4 h-4" />
-                  {isCreatingSheet ? 'শিট তৈরি হচ্ছে...' : 'নতুন গুগল শিট তৈরি ও সিন্ক করুন'}
+                  {isCreatingSheet ? 'ডিজাইন ও শিট তৈরি হচ্ছে...' : 'নতুন গুগল শিট তৈরি ও ডিজাইন সিন্ক করুন'}
                 </button>
               </div>
 

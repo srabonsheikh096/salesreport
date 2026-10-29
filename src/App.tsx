@@ -292,7 +292,7 @@ export default function App() {
   const totalStockVal = products.reduce((sum, p) => sum + p.stock * p.costPrice, 0);
 
   return (
-    <div className="min-h-screen bg-slate-100/70 text-slate-900 pb-16 font-sans">
+    <div className="min-h-screen bg-slate-100/70 text-slate-900 pb-16 font-sans w-full max-w-full overflow-x-hidden">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed top-5 right-5 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl border border-slate-700 text-xs font-semibold flex items-center gap-2.5 animate-in slide-in-from-top-2">
@@ -302,19 +302,19 @@ export default function App() {
       )}
 
       {/* Top Header Navbar */}
-      <header className="bg-white border-b border-slate-200/80 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16 gap-2">
+      <header className="bg-white border-b border-slate-200/80 sticky top-0 z-40 w-full overflow-hidden">
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16 gap-1 sm:gap-2">
             {/* App Brand */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-xs">
-                <FileSpreadsheet className="w-5 h-5 sm:w-6 sm:h-6" />
+            <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-xs shrink-0">
+                <FileSpreadsheet className="w-4 h-4 sm:w-6 sm:h-6" />
               </div>
-              <div>
-                <h1 className="text-sm sm:text-base md:text-lg font-bold text-slate-900 leading-tight flex items-center gap-1.5">
-                  <span className="hidden xs:inline sm:inline">স্মার্ট স্টক ও লাভ খাতা</span>
-                  <span className="xs:hidden sm:hidden">স্টক ও লাভ</span>
-                  <span className="text-[9px] sm:text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+              <div className="min-w-0">
+                <h1 className="text-xs sm:text-base md:text-lg font-bold text-slate-900 leading-tight flex items-center gap-1 min-w-0">
+                  <span className="hidden xs:inline sm:inline truncate">স্মার্ট স্টক ও লাভ খাতা</span>
+                  <span className="xs:hidden sm:hidden truncate">স্টক ও লাভ</span>
+                  <span className="text-[9px] sm:text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0">
                     PRO
                   </span>
                 </h1>
@@ -325,7 +325,7 @@ export default function App() {
             </div>
 
             {/* Google Sheets Sync & User Header Tools */}
-            <div className="flex items-center gap-1.5 sm:gap-2.5">
+            <div className="flex items-center gap-1 sm:gap-2 shrink-0">
               {/* Currency Selector (compact) */}
               <div className="flex items-center bg-slate-100 px-2 py-1 rounded-xl text-xs font-semibold text-slate-700">
                 <select
@@ -435,12 +435,12 @@ export default function App() {
       </header>
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-4 sm:space-y-6">
+      <main className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 pt-3 sm:pt-6 space-y-4 sm:space-y-6 w-full max-w-full overflow-x-hidden">
         {/* Highlight Quick Summary Strip */}
-        <div className="bg-gradient-to-r from-emerald-800 via-teal-900 to-slate-900 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-md relative overflow-hidden">
+        <div className="bg-gradient-to-r from-emerald-800 via-teal-900 to-slate-900 text-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 shadow-md relative overflow-hidden w-full">
           <div className="absolute right-0 top-0 translate-x-10 -translate-y-10 w-64 h-64 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 relative z-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-6 relative z-10">
             <div>
               <p className="text-[10px] sm:text-[11px] font-semibold text-emerald-300 uppercase tracking-wider">
                 মজুদ পণ্য ও মান
@@ -448,7 +448,7 @@ export default function App() {
               <p className="text-lg sm:text-2xl font-black mt-0.5 sm:mt-1 text-white">
                 {products.length} টি
               </p>
-              <p className="text-[10px] sm:text-xs text-emerald-200/80 mt-0.5">
+              <p className="text-[10px] sm:text-xs text-emerald-200/80 mt-0.5 truncate">
                 মান: {currency}{totalStockVal.toLocaleString()}
               </p>
             </div>
@@ -460,7 +460,7 @@ export default function App() {
               <p className="text-lg sm:text-2xl font-black mt-0.5 sm:mt-1 text-white">
                 {currency}{(currentMonthSummary?.totalRevenue || 0).toLocaleString()}
               </p>
-              <p className="text-[10px] sm:text-xs text-teal-200/80 mt-0.5">
+              <p className="text-[10px] sm:text-xs text-teal-200/80 mt-0.5 truncate">
                 {currentMonthSummary?.totalSalesCount || 0} টি বিক্রয়
               </p>
             </div>
@@ -477,7 +477,7 @@ export default function App() {
                 {(currentMonthSummary?.netProfit || 0) >= 0 ? '+' : ''}
                 {currency}{(currentMonthSummary?.netProfit || 0).toLocaleString()}
               </p>
-              <p className="text-[10px] sm:text-xs text-emerald-200/80 mt-0.5">
+              <p className="text-[10px] sm:text-xs text-emerald-200/80 mt-0.5 truncate">
                 মার্জিন: {(currentMonthSummary?.profitMargin || 0).toFixed(1)}%
               </p>
             </div>
@@ -491,19 +491,19 @@ export default function App() {
                 }}
                 className="w-full sm:w-auto px-4 sm:px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2"
               >
-                <ShoppingCart className="w-4 h-4" />
+                <ShoppingCart className="w-4 h-4 shrink-0" />
                 নতুন বিক্রয় এন্ট্রি
               </button>
             </div>
           </div>
         </div>
 
-        {/* View Tabs Navigation (Responsive Mobile Labels) */}
-        <div className="flex border-b border-slate-200 bg-white rounded-2xl p-1 shadow-2xs gap-1">
+        {/* View Tabs Navigation (Responsive Mobile Labels + Swipable scroll) */}
+        <div className="flex border-b border-slate-200 bg-white rounded-2xl p-1 shadow-2xs gap-1 overflow-x-auto no-scrollbar w-full">
           <button
             type="button"
             onClick={() => setActiveTab('inventory')}
-            className={`flex-1 py-2.5 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${
+            className={`shrink-0 sm:flex-1 py-2 sm:py-3 px-2.5 sm:px-4 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === 'inventory'
                 ? 'bg-emerald-600 text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
@@ -524,7 +524,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => setActiveTab('sales')}
-            className={`flex-1 py-2.5 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${
+            className={`shrink-0 sm:flex-1 py-2 sm:py-3 px-2.5 sm:px-4 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === 'sales'
                 ? 'bg-emerald-600 text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
@@ -545,7 +545,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => setActiveTab('monthly')}
-            className={`flex-1 py-2.5 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${
+            className={`shrink-0 sm:flex-1 py-2 sm:py-3 px-2.5 sm:px-4 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === 'monthly'
                 ? 'bg-emerald-600 text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
@@ -568,7 +568,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => setActiveTab('sheet_preview')}
-            className={`flex-1 py-2.5 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${
+            className={`shrink-0 sm:flex-1 py-2 sm:py-3 px-2.5 sm:px-4 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap ${
               activeTab === 'sheet_preview'
                 ? 'bg-emerald-600 text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'

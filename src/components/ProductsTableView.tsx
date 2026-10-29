@@ -119,10 +119,10 @@ export const ProductsTableView: React.FC<Props> = ({
       </div>
 
       {/* Control Bar: Search, Category Filter, and Add Actions */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-3 flex-1 min-w-[280px]">
+      <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3 w-full">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 flex-1 w-full min-w-0">
           {/* Search box */}
-          <div className="relative flex-1 min-w-[200px]">
+          <div className="relative flex-1 w-full min-w-0">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
@@ -135,12 +135,12 @@ export const ProductsTableView: React.FC<Props> = ({
 
           {/* Category filter */}
           {categories.length > 0 && (
-            <div className="flex items-center gap-1.5 text-xs text-slate-500">
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 shrink-0">
               <Filter className="w-3.5 h-3.5" />
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-3 py-2 text-xs bg-slate-50 rounded-xl border border-slate-200 outline-none text-slate-700 cursor-pointer font-medium"
+                className="px-3 py-2 text-xs bg-slate-50 rounded-xl border border-slate-200 outline-none text-slate-700 cursor-pointer font-medium w-full sm:w-auto"
               >
                 <option value="all">সব ক্যাটাগরি</option>
                 {categories.map((c) => (
@@ -154,48 +154,48 @@ export const ProductsTableView: React.FC<Props> = ({
         </div>
 
         {/* Buttons */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full md:w-auto">
           <button
             type="button"
             onClick={handleExportCSV}
-            className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
+            className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5"
             title="CSV ফাইল হিসেবে ডাউনলোড করুন"
           >
-            <Download className="w-3.5 h-3.5" />
+            <Download className="w-3.5 h-3.5 shrink-0" />
             CSV এক্সপোর্ট
           </button>
 
           <button
             type="button"
             onClick={() => onOpenRestock()}
-            className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5"
+            className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5"
           >
-            <PackagePlus className="w-3.5 h-3.5" />
-            স্টক যোগ (Restock)
+            <PackagePlus className="w-3.5 h-3.5 shrink-0" />
+            স্টক যোগ
           </button>
 
           <button
             type="button"
             onClick={onOpenAddSingle}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5"
           >
-            <Plus className="w-3.5 h-3.5" />
-            পণ্য যোগ করুন
+            <Plus className="w-3.5 h-3.5 shrink-0" />
+            পণ্য যোগ
           </button>
 
           <button
             type="button"
             onClick={onOpenAddBulk}
-            className="px-4 py-2 bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+            className="px-4 py-2 bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5"
           >
-            <Layers className="w-3.5 h-3.5 text-emerald-300" />
-            মাল্টি-প্রোডাক্ট
+            <Layers className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
+            মাল্টি-পণ্য
           </button>
         </div>
       </div>
 
       {/* Spreadsheet Table */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden w-full max-w-full">
         {filteredProducts.length === 0 ? (
           <div className="p-12 text-center text-slate-500">
             <Layers className="w-10 h-10 text-slate-300 mx-auto mb-2" />

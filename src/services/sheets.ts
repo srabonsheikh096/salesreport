@@ -197,7 +197,7 @@ async function ensureSpreadsheetTabs(spreadsheetId: string, token: string): Prom
   }
 
   if (requests.length > 0) {
-    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
+    const batchRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -205,6 +205,10 @@ async function ensureSpreadsheetTabs(spreadsheetId: string, token: string): Prom
       },
       body: JSON.stringify({ requests }),
     });
+    if (!batchRes.ok) {
+      const err = await batchRes.json().catch(() => ({}));
+      console.warn('ensureSpreadsheetTabs batchUpdate warning:', err);
+    }
   }
 
   return sheetIdMap;
@@ -212,17 +216,19 @@ async function ensureSpreadsheetTabs(spreadsheetId: string, token: string): Prom
 
 /**
  * Applies a gorgeous, polished visual theme directly into Google Sheets:
- * - Emerald & Navy header styling with white text
- * - Clean alternating rows (zebra striping)
- * - Soft borders
- * - Auto-resized column widths
- * - Frozen top header row
+ * - Interactive navigation buttons at Row 1 (Hyperlinks with button styling)
+ * - Emerald, Navy & Forest Green header styling with white bold text (Row 2)
+ * - Alternating rows (zebra striping)
+ * - Status badge pill formatting (Green, Amber, Red)
+ * - Soft borders & column widths
+ * - Frozen 2 rows (Buttons + Headers)
+ * - Colored sheet tabs at bottom
  */
 async function applyBeautifulSheetTheme(
   spreadsheetId: string,
   token: string,
   sheetIdMap: Record<string, number>,
-  productRowsCount: number,
+  products: Product[],
   salesRowsCount: number,
   monthlyRowsCount: number
 ): Promise<void> {
@@ -233,26 +239,120 @@ async function applyBeautifulSheetTheme(
     color: { red: 0.85, green: 0.88, blue: 0.92 },
   };
 
+  // Helper for safe batchUpdate execution
+  const executeBatch = async (batchReqs: any[]) => {
+    if (batchReqs.length === 0) return;
+    const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ requests: batchReqs }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      console.error('BatchUpdate theme error:', err);
+      throw new Error(err.error?.message || `শিট থিম ডিজাইন আপডেট করতে সমস্যা হয়েছে (${res.status})`);
+    }
+  };
+
   // 1. Format Products Tab
   const productsSheetId = sheetIdMap[TAB_PRODUCTS];
   if (productsSheetId !== undefined) {
-    const totalRows = Math.max(productRowsCount + 1, 2);
+    const totalRows = Math.max(products.length + 2, 3); // 2 header rows + data rows
 
-    // Freeze header
+    // Freeze header (Row 1 buttons + Row 2 column headers) & Tab color
     requests.push({
       updateSheetProperties: {
-        properties: { sheetId: productsSheetId, gridProperties: { frozenRowCount: 1 } },
-        fields: 'gridProperties.frozenRowCount',
+        properties: {
+          sheetId: productsSheetId,
+          tabColorStyle: { rgbColor: { red: 0.059, green: 0.463, blue: 0.431 } }, // Emerald
+          gridProperties: {
+            frozenRowCount: 2,
+            rowCount: Math.max(totalRows + 20, 50),
+            columnCount: 12,
+          },
+        },
+        fields: 'tabColorStyle,gridProperties(frozenRowCount,rowCount,columnCount)',
       },
     });
 
-    // Header styling (Emerald theme)
+    // Row 1: Dark Slate Button Navigation Bar
     requests.push({
       repeatCell: {
         range: {
           sheetId: productsSheetId,
           startRowIndex: 0,
           endRowIndex: 1,
+          startColumnIndex: 0,
+          endColumnIndex: 10,
+        },
+        cell: {
+          userEnteredFormat: {
+            backgroundColor: { red: 0.08, green: 0.12, blue: 0.18 }, // #141E2E
+            textFormat: {
+              foregroundColor: { red: 0.85, green: 0.9, blue: 0.95 },
+              bold: true,
+              fontSize: 10,
+            },
+            verticalAlignment: 'MIDDLE',
+          },
+        },
+        fields: 'userEnteredFormat',
+      },
+    });
+
+    // Row 1 Buttons: Button 1 (Sales), Button 2 (Monthly), Button 3 (App)
+    const buttonStyles = [
+      { col: 1, bg: { red: 0.118, green: 0.227, blue: 0.541 } }, // Navy #1E3A8A
+      { col: 2, bg: { red: 0.024, green: 0.373, blue: 0.275 } }, // Forest #065F46
+      { col: 3, bg: { red: 0.43, green: 0.16, blue: 0.78 } },   // Purple #6E29C7
+    ];
+    buttonStyles.forEach((btn) => {
+      requests.push({
+        repeatCell: {
+          range: {
+            sheetId: productsSheetId,
+            startRowIndex: 0,
+            endRowIndex: 1,
+            startColumnIndex: btn.col,
+            endColumnIndex: btn.col + 1,
+          },
+          cell: {
+            userEnteredFormat: {
+              backgroundColor: btn.bg,
+              textFormat: {
+                foregroundColor: { red: 1.0, green: 1.0, blue: 1.0 },
+                bold: true,
+                fontSize: 10,
+              },
+              horizontalAlignment: 'CENTER',
+              verticalAlignment: 'MIDDLE',
+            },
+          },
+          fields: 'userEnteredFormat',
+        },
+      });
+    });
+
+    // Row 1 Height
+    requests.push({
+      updateDimensionProperties: {
+        range: { sheetId: productsSheetId, dimension: 'ROWS', startIndex: 0, endIndex: 1 },
+        properties: { pixelSize: 36 },
+        fields: 'pixelSize',
+      },
+    });
+
+    // Row 2: Table Column Headers (Emerald theme)
+    requests.push({
+      repeatCell: {
+        range: {
+          sheetId: productsSheetId,
+          startRowIndex: 1,
+          endRowIndex: 2,
           startColumnIndex: 0,
           endColumnIndex: 10,
         },
@@ -269,21 +369,21 @@ async function applyBeautifulSheetTheme(
             wrapStrategy: 'WRAP',
           },
         },
-        fields: 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment,verticalAlignment,wrapStrategy)',
+        fields: 'userEnteredFormat',
       },
     });
 
-    // Set Header row height
+    // Row 2 Height
     requests.push({
       updateDimensionProperties: {
-        range: { sheetId: productsSheetId, dimension: 'ROWS', startIndex: 0, endIndex: 1 },
-        properties: { pixelSize: 40 },
+        range: { sheetId: productsSheetId, dimension: 'ROWS', startIndex: 1, endIndex: 2 },
+        properties: { pixelSize: 42 },
         fields: 'pixelSize',
       },
     });
 
-    // Data rows alternating backgrounds
-    for (let r = 1; r < totalRows; r++) {
+    // Data rows alternating backgrounds (Rows 3+)
+    for (let r = 2; r < totalRows; r++) {
       const isEven = r % 2 === 0;
       requests.push({
         repeatCell: {
@@ -300,19 +400,64 @@ async function applyBeautifulSheetTheme(
                 ? { red: 1.0, green: 1.0, blue: 1.0 }
                 : { red: 0.965, green: 0.984, blue: 0.976 }, // Soft Mint
               verticalAlignment: 'MIDDLE',
+              textFormat: { fontSize: 10 },
             },
           },
-          fields: 'userEnteredFormat(backgroundColor,verticalAlignment)',
+          fields: 'userEnteredFormat',
         },
       });
     }
+
+    // Status column pill badges (Col J / index 9)
+    products.forEach((p, idx) => {
+      const rowIdx = idx + 2;
+      const isOut = p.stock <= 0;
+      const isLow = p.stock <= p.minStockAlert;
+
+      const statusBg = isOut
+        ? { red: 0.99, green: 0.88, blue: 0.88 }
+        : isLow
+        ? { red: 0.99, green: 0.95, blue: 0.8 }
+        : { red: 0.88, green: 0.96, blue: 0.89 };
+
+      const statusText = isOut
+        ? { red: 0.75, green: 0.1, blue: 0.1 }
+        : isLow
+        ? { red: 0.7, green: 0.45, blue: 0.05 }
+        : { red: 0.04, green: 0.45, blue: 0.22 };
+
+      requests.push({
+        repeatCell: {
+          range: {
+            sheetId: productsSheetId,
+            startRowIndex: rowIdx,
+            endRowIndex: rowIdx + 1,
+            startColumnIndex: 9,
+            endColumnIndex: 10,
+          },
+          cell: {
+            userEnteredFormat: {
+              backgroundColor: statusBg,
+              textFormat: {
+                foregroundColor: statusText,
+                bold: true,
+                fontSize: 10,
+              },
+              horizontalAlignment: 'CENTER',
+              verticalAlignment: 'MIDDLE',
+            },
+          },
+          fields: 'userEnteredFormat',
+        },
+      });
+    });
 
     // Grid borders
     requests.push({
       updateBorders: {
         range: {
           sheetId: productsSheetId,
-          startRowIndex: 0,
+          startRowIndex: 1,
           endRowIndex: totalRows,
           startColumnIndex: 0,
           endColumnIndex: 10,
@@ -330,7 +475,7 @@ async function applyBeautifulSheetTheme(
     requests.push({
       updateDimensionProperties: {
         range: { sheetId: productsSheetId, dimension: 'COLUMNS', startIndex: 1, endIndex: 2 },
-        properties: { pixelSize: 220 }, // Product Name
+        properties: { pixelSize: 240 }, // Product Name
         fields: 'pixelSize',
       },
     });
@@ -346,22 +491,96 @@ async function applyBeautifulSheetTheme(
   // 2. Format Daily Sales Tab
   const salesSheetId = sheetIdMap[TAB_SALES];
   if (salesSheetId !== undefined) {
-    const totalRows = Math.max(salesRowsCount + 1, 2);
+    const totalRows = Math.max(salesRowsCount + 2, 3);
 
     requests.push({
       updateSheetProperties: {
-        properties: { sheetId: salesSheetId, gridProperties: { frozenRowCount: 1 } },
-        fields: 'gridProperties.frozenRowCount',
+        properties: {
+          sheetId: salesSheetId,
+          tabColorStyle: { rgbColor: { red: 0.118, green: 0.227, blue: 0.541 } }, // Royal Blue
+          gridProperties: {
+            frozenRowCount: 2,
+            rowCount: Math.max(totalRows + 20, 50),
+            columnCount: 12,
+          },
+        },
+        fields: 'tabColorStyle,gridProperties(frozenRowCount,rowCount,columnCount)',
       },
     });
 
-    // Header styling (Royal Blue theme)
+    // Row 1: Dark Slate Button Navigation Bar
     requests.push({
       repeatCell: {
         range: {
           sheetId: salesSheetId,
           startRowIndex: 0,
           endRowIndex: 1,
+          startColumnIndex: 0,
+          endColumnIndex: 10,
+        },
+        cell: {
+          userEnteredFormat: {
+            backgroundColor: { red: 0.08, green: 0.12, blue: 0.18 },
+            textFormat: {
+              foregroundColor: { red: 0.85, green: 0.9, blue: 0.95 },
+              bold: true,
+              fontSize: 10,
+            },
+            verticalAlignment: 'MIDDLE',
+          },
+        },
+        fields: 'userEnteredFormat',
+      },
+    });
+
+    // Row 1 Buttons: Button 1 (Products), Button 2 (Monthly), Button 3 (App)
+    const salesButtonStyles = [
+      { col: 1, bg: { red: 0.059, green: 0.463, blue: 0.431 } }, // Emerald
+      { col: 2, bg: { red: 0.024, green: 0.373, blue: 0.275 } }, // Forest
+      { col: 3, bg: { red: 0.43, green: 0.16, blue: 0.78 } },   // Purple
+    ];
+    salesButtonStyles.forEach((btn) => {
+      requests.push({
+        repeatCell: {
+          range: {
+            sheetId: salesSheetId,
+            startRowIndex: 0,
+            endRowIndex: 1,
+            startColumnIndex: btn.col,
+            endColumnIndex: btn.col + 1,
+          },
+          cell: {
+            userEnteredFormat: {
+              backgroundColor: btn.bg,
+              textFormat: {
+                foregroundColor: { red: 1.0, green: 1.0, blue: 1.0 },
+                bold: true,
+                fontSize: 10,
+              },
+              horizontalAlignment: 'CENTER',
+              verticalAlignment: 'MIDDLE',
+            },
+          },
+          fields: 'userEnteredFormat',
+        },
+      });
+    });
+
+    requests.push({
+      updateDimensionProperties: {
+        range: { sheetId: salesSheetId, dimension: 'ROWS', startIndex: 0, endIndex: 1 },
+        properties: { pixelSize: 36 },
+        fields: 'pixelSize',
+      },
+    });
+
+    // Row 2: Header styling (Royal Navy theme)
+    requests.push({
+      repeatCell: {
+        range: {
+          sheetId: salesSheetId,
+          startRowIndex: 1,
+          endRowIndex: 2,
           startColumnIndex: 0,
           endColumnIndex: 10,
         },
@@ -378,19 +597,19 @@ async function applyBeautifulSheetTheme(
             wrapStrategy: 'WRAP',
           },
         },
-        fields: 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment,verticalAlignment,wrapStrategy)',
+        fields: 'userEnteredFormat',
       },
     });
 
     requests.push({
       updateDimensionProperties: {
-        range: { sheetId: salesSheetId, dimension: 'ROWS', startIndex: 0, endIndex: 1 },
-        properties: { pixelSize: 40 },
+        range: { sheetId: salesSheetId, dimension: 'ROWS', startIndex: 1, endIndex: 2 },
+        properties: { pixelSize: 42 },
         fields: 'pixelSize',
       },
     });
 
-    for (let r = 1; r < totalRows; r++) {
+    for (let r = 2; r < totalRows; r++) {
       const isEven = r % 2 === 0;
       requests.push({
         repeatCell: {
@@ -407,9 +626,10 @@ async function applyBeautifulSheetTheme(
                 ? { red: 1.0, green: 1.0, blue: 1.0 }
                 : { red: 0.965, green: 0.976, blue: 0.992 }, // Soft Sky
               verticalAlignment: 'MIDDLE',
+              textFormat: { fontSize: 10 },
             },
           },
-          fields: 'userEnteredFormat(backgroundColor,verticalAlignment)',
+          fields: 'userEnteredFormat',
         },
       });
     }
@@ -418,7 +638,7 @@ async function applyBeautifulSheetTheme(
       updateBorders: {
         range: {
           sheetId: salesSheetId,
-          startRowIndex: 0,
+          startRowIndex: 1,
           endRowIndex: totalRows,
           startColumnIndex: 0,
           endColumnIndex: 10,
@@ -444,22 +664,96 @@ async function applyBeautifulSheetTheme(
   // 3. Format Monthly Summary Tab
   const monthlySheetId = sheetIdMap[TAB_MONTHLY];
   if (monthlySheetId !== undefined) {
-    const totalRows = Math.max(monthlyRowsCount + 1, 2);
+    const totalRows = Math.max(monthlyRowsCount + 2, 3);
 
     requests.push({
       updateSheetProperties: {
-        properties: { sheetId: monthlySheetId, gridProperties: { frozenRowCount: 1 } },
-        fields: 'gridProperties.frozenRowCount',
+        properties: {
+          sheetId: monthlySheetId,
+          tabColorStyle: { rgbColor: { red: 0.024, green: 0.373, blue: 0.275 } }, // Forest
+          gridProperties: {
+            frozenRowCount: 2,
+            rowCount: Math.max(totalRows + 20, 50),
+            columnCount: 10,
+          },
+        },
+        fields: 'tabColorStyle,gridProperties(frozenRowCount,rowCount,columnCount)',
       },
     });
 
-    // Header styling (Deep Forest Green theme)
+    // Row 1: Dark Slate Button Navigation Bar
     requests.push({
       repeatCell: {
         range: {
           sheetId: monthlySheetId,
           startRowIndex: 0,
           endRowIndex: 1,
+          startColumnIndex: 0,
+          endColumnIndex: 8,
+        },
+        cell: {
+          userEnteredFormat: {
+            backgroundColor: { red: 0.08, green: 0.12, blue: 0.18 },
+            textFormat: {
+              foregroundColor: { red: 0.85, green: 0.9, blue: 0.95 },
+              bold: true,
+              fontSize: 10,
+            },
+            verticalAlignment: 'MIDDLE',
+          },
+        },
+        fields: 'userEnteredFormat',
+      },
+    });
+
+    // Row 1 Buttons: Button 1 (Products), Button 2 (Sales), Button 3 (App)
+    const monthlyButtonStyles = [
+      { col: 1, bg: { red: 0.059, green: 0.463, blue: 0.431 } }, // Emerald
+      { col: 2, bg: { red: 0.118, green: 0.227, blue: 0.541 } }, // Navy
+      { col: 3, bg: { red: 0.43, green: 0.16, blue: 0.78 } },   // Purple
+    ];
+    monthlyButtonStyles.forEach((btn) => {
+      requests.push({
+        repeatCell: {
+          range: {
+            sheetId: monthlySheetId,
+            startRowIndex: 0,
+            endRowIndex: 1,
+            startColumnIndex: btn.col,
+            endColumnIndex: btn.col + 1,
+          },
+          cell: {
+            userEnteredFormat: {
+              backgroundColor: btn.bg,
+              textFormat: {
+                foregroundColor: { red: 1.0, green: 1.0, blue: 1.0 },
+                bold: true,
+                fontSize: 10,
+              },
+              horizontalAlignment: 'CENTER',
+              verticalAlignment: 'MIDDLE',
+            },
+          },
+          fields: 'userEnteredFormat',
+        },
+      });
+    });
+
+    requests.push({
+      updateDimensionProperties: {
+        range: { sheetId: monthlySheetId, dimension: 'ROWS', startIndex: 0, endIndex: 1 },
+        properties: { pixelSize: 36 },
+        fields: 'pixelSize',
+      },
+    });
+
+    // Row 2: Header styling (Deep Forest Green theme)
+    requests.push({
+      repeatCell: {
+        range: {
+          sheetId: monthlySheetId,
+          startRowIndex: 1,
+          endRowIndex: 2,
           startColumnIndex: 0,
           endColumnIndex: 8,
         },
@@ -476,19 +770,19 @@ async function applyBeautifulSheetTheme(
             wrapStrategy: 'WRAP',
           },
         },
-        fields: 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment,verticalAlignment,wrapStrategy)',
+        fields: 'userEnteredFormat',
       },
     });
 
     requests.push({
       updateDimensionProperties: {
-        range: { sheetId: monthlySheetId, dimension: 'ROWS', startIndex: 0, endIndex: 1 },
-        properties: { pixelSize: 40 },
+        range: { sheetId: monthlySheetId, dimension: 'ROWS', startIndex: 1, endIndex: 2 },
+        properties: { pixelSize: 42 },
         fields: 'pixelSize',
       },
     });
 
-    for (let r = 1; r < totalRows; r++) {
+    for (let r = 2; r < totalRows; r++) {
       const isEven = r % 2 === 0;
       requests.push({
         repeatCell: {
@@ -505,9 +799,10 @@ async function applyBeautifulSheetTheme(
                 ? { red: 1.0, green: 1.0, blue: 1.0 }
                 : { red: 0.965, green: 0.984, blue: 0.976 },
               verticalAlignment: 'MIDDLE',
+              textFormat: { fontSize: 10 },
             },
           },
-          fields: 'userEnteredFormat(backgroundColor,verticalAlignment)',
+          fields: 'userEnteredFormat',
         },
       });
     }
@@ -516,7 +811,7 @@ async function applyBeautifulSheetTheme(
       updateBorders: {
         range: {
           sheetId: monthlySheetId,
-          startRowIndex: 0,
+          startRowIndex: 1,
           endRowIndex: totalRows,
           startColumnIndex: 0,
           endColumnIndex: 8,
@@ -547,24 +842,11 @@ async function applyBeautifulSheetTheme(
   }
 
   // Execute styling batch
-  if (requests.length > 0) {
-    try {
-      await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ requests }),
-      });
-    } catch (err) {
-      console.warn('Formatting warning:', err);
-    }
-  }
+  await executeBatch(requests);
 }
 
 /**
- * Sync all current products, sales, and monthly summary rows to the Google Sheet with high aesthetic formatting.
+ * Sync all current products, sales, and monthly summary rows to the Google Sheet with high aesthetic formatting and navigation buttons.
  */
 export async function syncAllDataToGoogleSheet(
   spreadsheetId: string,
@@ -580,8 +862,22 @@ export async function syncAllDataToGoogleSheet(
 
   // 1. Ensure required tabs exist
   const sheetIdMap = await ensureSpreadsheetTabs(spreadsheetId, token);
+  const appOrigin = typeof window !== 'undefined' ? window.location.origin : '';
 
   // 2. Prepare Products Sheet Data
+  const productsNavBar = [
+    '⚡ কুইক বাটন প্যানেল:',
+    `=HYPERLINK("#gid=${sheetIdMap[TAB_SALES] ?? 0}", "🛒 দৈনিক বিক্রয় শিট ➜")`,
+    `=HYPERLINK("#gid=${sheetIdMap[TAB_MONTHLY] ?? 0}", "📊 মাসিক লাভ-ক্ষতি হিসাব ➜")`,
+    `=HYPERLINK("${appOrigin}", "🚀 স্মার্ট অ্যাপ ওপেন করুন ➜")`,
+    `আপডেট: ${new Date().toLocaleDateString('bn-BD')}`,
+    '',
+    '',
+    '',
+    '',
+    '✅ ক্লাউড লাইভ',
+  ];
+
   const productsHeader = [
     'ক্রমিক (SL)',
     'পণ্যের নাম (Product Name)',
@@ -622,6 +918,19 @@ export async function syncAllDataToGoogleSheet(
   });
 
   // 3. Prepare Sales Sheet Data
+  const salesNavBar = [
+    '⚡ কুইক বাটন প্যানেল:',
+    `=HYPERLINK("#gid=${sheetIdMap[TAB_PRODUCTS] ?? 0}", "📦 পণ্য ও স্টক খাতা ➜")`,
+    `=HYPERLINK("#gid=${sheetIdMap[TAB_MONTHLY] ?? 0}", "📊 মাসিক লাভ-ক্ষতি হিসাব ➜")`,
+    `=HYPERLINK("${appOrigin}", "🚀 স্মার্ট অ্যাপ ওপেন করুন ➜")`,
+    `আপডেট: ${new Date().toLocaleDateString('bn-BD')}`,
+    '',
+    '',
+    '',
+    '',
+    '✅ বিক্রয় খাতা',
+  ];
+
   const salesHeader = [
     'তারিখ (Date)',
     'পণ্যের নাম (Product)',
@@ -652,6 +961,17 @@ export async function syncAllDataToGoogleSheet(
   });
 
   // 4. Prepare Monthly Summary Sheet Data
+  const monthlyNavBar = [
+    '⚡ কুইক বাটন প্যানেল:',
+    `=HYPERLINK("#gid=${sheetIdMap[TAB_PRODUCTS] ?? 0}", "📦 পণ্য ও স্টক খাতা ➜")`,
+    `=HYPERLINK("#gid=${sheetIdMap[TAB_SALES] ?? 0}", "🛒 দৈনিক বিক্রয় শিট ➜")`,
+    `=HYPERLINK("${appOrigin}", "🚀 স্মার্ট অ্যাপ ওপেন করুন ➜")`,
+    `হিসাব: ${new Date().toLocaleDateString('bn-BD')}`,
+    '',
+    '',
+    '✅ লাভ-ক্ষতি রিপোর্ট',
+  ];
+
   const monthlyHeader = [
     'মাস (Month)',
     'মোট অর্ডার (Sales Count)',
@@ -693,21 +1013,21 @@ export async function syncAllDataToGoogleSheet(
     }
   }
 
-  // Batch update all values
+  // Batch update all values (Row 1 = Button Bar, Row 2 = Column Headers, Row 3+ = Data)
   const updatePayload = {
     valueInputOption: 'USER_ENTERED',
     data: [
       {
         range: `${TAB_PRODUCTS}!A1`,
-        values: [productsHeader, ...productRows],
+        values: [productsNavBar, productsHeader, ...productRows],
       },
       {
         range: `${TAB_SALES}!A1`,
-        values: [salesHeader, ...salesRows],
+        values: [salesNavBar, salesHeader, ...salesRows],
       },
       {
         range: `${TAB_MONTHLY}!A1`,
-        values: [monthlyHeader, ...monthlyRows],
+        values: [monthlyNavBar, monthlyHeader, ...monthlyRows],
       },
     ],
   };
@@ -729,12 +1049,12 @@ export async function syncAllDataToGoogleSheet(
     throw new Error(err.error?.message || `শিট আপডেট ব্যর্থ হয়েছে (${updateRes.status})`);
   }
 
-  // 5. Apply beautiful theme, headers, borders, zebra striping, and column widths to the Google Sheet!
+  // 5. Apply beautiful theme, navigation button styles, headers, borders, zebra striping, and column widths to the Google Sheet!
   await applyBeautifulSheetTheme(
     spreadsheetId,
     token,
     sheetIdMap,
-    productRows.length,
+    products,
     salesRows.length,
     monthlyRows.length
   );

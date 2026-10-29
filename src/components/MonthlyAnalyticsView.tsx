@@ -99,21 +99,21 @@ export const MonthlyAnalyticsView: React.FC<Props> = ({
   const isProfit = (selectedSummary?.netProfit || 0) >= 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6 w-full max-w-full overflow-hidden">
       {/* Month Selector Bar & Action */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-emerald-50 rounded-xl text-emerald-700">
+      <div className="bg-white p-3.5 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="p-2.5 bg-emerald-50 rounded-xl text-emerald-700 shrink-0">
             <Calendar className="w-5 h-5" />
           </div>
-          <div>
+          <div className="min-w-0">
             <label className="block text-xs font-semibold text-slate-500">
-              হিসাবের মাস নির্বাচন করুন (Select Month)
+              হিসাবের মাস নির্বাচন করুন
             </label>
             <select
               value={selectedMonthKey}
               onChange={(e) => setSelectedMonthKey(e.target.value)}
-              className="text-base font-bold text-slate-900 bg-transparent outline-none cursor-pointer pr-4"
+              className="text-sm sm:text-base font-bold text-slate-900 bg-transparent outline-none cursor-pointer pr-4 w-full"
             >
               {monthlySummaries.map((m) => (
                 <option key={m.monthKey} value={m.monthKey}>
@@ -124,13 +124,13 @@ export const MonthlyAnalyticsView: React.FC<Props> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <button
             type="button"
             onClick={() => setIsReportModalOpen(true)}
-            className="no-print px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5"
+            className="w-full sm:w-auto no-print px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5"
           >
-            <Download className="w-4 h-4" />
+            <Download className="w-4 h-4 shrink-0" />
             PDF / প্রিন্ট রিপোর্ট
           </button>
         </div>

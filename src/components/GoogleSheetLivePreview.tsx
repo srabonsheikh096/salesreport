@@ -7,7 +7,8 @@ import {
   Table,
   Layers,
   TrendingUp,
-  BarChart3
+  BarChart3,
+  Sparkles
 } from 'lucide-react';
 import { Product, SaleRecord, MonthlySummary, GoogleSheetMeta } from '../types';
 
@@ -33,49 +34,49 @@ export const GoogleSheetLivePreview: React.FC<Props> = ({
   const [activeSheetTab, setActiveSheetTab] = useState<'products' | 'sales' | 'monthly'>('products');
   const [selectedCell, setSelectedCell] = useState<{ col: string; row: number; val: string }>({
     col: 'B',
-    row: 2,
+    row: 3,
     val: products[0]?.name || '',
   });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full max-w-full overflow-hidden">
       {/* Header Info */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+      <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs shrink-0">
             <FileSpreadsheet className="w-5 h-5" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-slate-900">গুগল শিট থিম ভিউ (Google Sheets Live Theme)</h3>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900 truncate">গুগল শিট লাইভ ডিজাইন ও বাটন ভিউ</h3>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                HD থিম
+                PRO থিম
               </span>
             </div>
-            <p className="text-xs text-slate-500">
-              আপনার গুগল ড্রাইভে যে কালার থিম ও বর্ডারে ডাটা সিন্ক হয় তার হুবহু লাইভ স্প্রেডশিট রূপ
+            <p className="text-[11px] sm:text-xs text-slate-500 truncate">
+              কুইক নেভিগেশন বাটন, এমারেল্ড হেডার ও অটো-কালার থিম
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           {sheetMeta ? (
             <>
               <button
                 type="button"
                 onClick={onSync}
                 disabled={isSyncing}
-                className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-2xs disabled:opacity-50"
+                className="flex-1 sm:flex-none px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-2xs disabled:opacity-50"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-                {isSyncing ? 'থিম সহ সিন্ক হচ্ছে...' : 'শিটে থিম সহ সিন্ক করুন'}
+                {isSyncing ? 'থিম ও বাটন সহ সিন্ক হচ্ছে...' : 'শিটে থিম ও বাটন সিন্ক করুন'}
               </button>
 
               <a
                 href={sheetMeta.spreadsheetUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5"
+                className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shrink-0"
               >
                 <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
                 গুগল অ্যাপে ওপেন
@@ -90,24 +91,22 @@ export const GoogleSheetLivePreview: React.FC<Props> = ({
       </div>
 
       {/* Realistic Google Sheets Mockup Window */}
-      <div className="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden font-sans">
+      <div className="bg-white rounded-2xl border border-slate-300 shadow-sm overflow-hidden font-sans w-full max-w-full">
         {/* Google Sheets Window Top Bar */}
-        <div className="bg-slate-50 border-b border-slate-200 px-4 py-2.5 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-emerald-600 flex items-center justify-center text-white">
+        <div className="bg-slate-50 border-b border-slate-200 px-3 sm:px-4 py-2 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-6 h-6 rounded-md bg-emerald-600 flex items-center justify-center text-white shrink-0">
               <FileSpreadsheet className="w-4 h-4" />
             </div>
-            <span className="text-xs font-bold text-slate-800">
+            <span className="text-xs font-bold text-slate-800 truncate">
               {sheetMeta?.title || 'Product Stock & Profit Ledger (প্রোডাক্ট স্টক ও লাভ খাতা)'}
-            </span>
-            <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">
-              • ড্রাইভ ক্লাউড সিন্ক
             </span>
           </div>
 
-          <div className="text-[11px] text-slate-500 font-medium flex items-center gap-1.5">
+          <div className="text-[10px] sm:text-[11px] text-slate-500 font-medium flex items-center gap-1 shrink-0">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-            <span>কালার থিম ও বর্ডার সক্রিয়</span>
+            <span className="hidden xs:inline">বাটন ও কালার থিম সক্রিয়</span>
+            <span className="xs:hidden">সক্রিয়</span>
           </div>
         </div>
 
@@ -123,10 +122,10 @@ export const GoogleSheetLivePreview: React.FC<Props> = ({
         </div>
 
         {/* Spreadsheet Table View */}
-        <div className="overflow-x-auto max-h-[500px]">
+        <div className="overflow-x-auto max-h-[500px] w-full max-w-full">
           {/* TAB 1: Products */}
           {activeSheetTab === 'products' && (
-            <table className="w-full text-xs border-collapse">
+            <table className="w-full text-xs border-collapse min-w-[750px]">
               <thead>
                 {/* Column letters A, B, C, D... */}
                 <tr className="bg-slate-100 text-slate-500 font-bold text-[11px] text-center border-b border-slate-300 select-none">
@@ -142,9 +141,45 @@ export const GoogleSheetLivePreview: React.FC<Props> = ({
                   <th className="py-1 border-r border-slate-300 w-28">I</th>
                   <th className="py-1 w-32">J</th>
                 </tr>
-                {/* Emerald Header Row */}
-                <tr className="bg-[#0F766E] text-white font-bold text-[11px] text-center h-10 border-b border-teal-800">
+
+                {/* ROW 1: Interactive Navigation Buttons Bar */}
+                <tr className="bg-[#141E2E] text-white text-[11px] text-center h-9 border-b border-slate-700">
                   <td className="bg-slate-200 text-slate-700 font-bold border-r border-slate-300">1</td>
+                  <td className="border-r border-slate-700 px-2 font-bold text-slate-300 text-[10px]">⚡ বাটন প্যানেল:</td>
+                  <td className="border-r border-slate-700 px-2">
+                    <button
+                      type="button"
+                      onClick={() => setActiveSheetTab('sales')}
+                      className="px-2 py-1 bg-[#1E3A8A] hover:bg-blue-800 text-white font-bold rounded text-[10px] transition-all flex items-center justify-center gap-1 mx-auto"
+                    >
+                      🛒 দৈনিক বিক্রয় খাতা ➜
+                    </button>
+                  </td>
+                  <td className="border-r border-slate-700 px-2">
+                    <button
+                      type="button"
+                      onClick={() => setActiveSheetTab('monthly')}
+                      className="px-2 py-1 bg-[#065F46] hover:bg-emerald-900 text-white font-bold rounded text-[10px] transition-all flex items-center justify-center gap-1 mx-auto"
+                    >
+                      📊 লাভ-ক্ষতি হিসাব ➜
+                    </button>
+                  </td>
+                  <td className="border-r border-slate-700 px-2">
+                    <span className="px-2 py-1 bg-[#6E29C7] text-white font-bold rounded text-[10px] inline-block">
+                      🚀 স্মার্ট অ্যাপ ➜
+                    </span>
+                  </td>
+                  <td colSpan={5} className="border-r border-slate-700 px-2 text-slate-400 text-[10px]">
+                    গুগল শিটে তৈরি লাইভ লিঙ্ক ও ইন্টারঅ্যাক্টিভ বাটন
+                  </td>
+                  <td className="px-2 text-emerald-400 font-bold text-[10px]">
+                    ✅ লাইভ ক্লাউড ডাটা
+                  </td>
+                </tr>
+
+                {/* ROW 2: Emerald Header Row */}
+                <tr className="bg-[#0F766E] text-white font-bold text-[11px] text-center h-10 border-b border-teal-800">
+                  <td className="bg-slate-200 text-slate-700 font-bold border-r border-slate-300">2</td>
                   <td className="border-r border-teal-600/50 px-2">ক্রমিক (SL)</td>
                   <td className="border-r border-teal-600/50 px-3 text-left">পণ্যের নাম (Product Name)</td>
                   <td className="border-r border-teal-600/50 px-2 text-left">ক্যাটাগরি</td>
@@ -173,11 +208,11 @@ export const GoogleSheetLivePreview: React.FC<Props> = ({
                       } hover:bg-emerald-50/60`}
                     >
                       <td className="bg-slate-100 text-slate-500 font-bold text-center border-r border-slate-300 text-[11px] select-none">
-                        {idx + 2}
+                        {idx + 3}
                       </td>
                       <td className="border-r border-slate-200 text-center px-2 text-slate-600">{idx + 1}</td>
                       <td
-                        onClick={() => setSelectedCell({ col: 'B', row: idx + 2, val: p.name })}
+                        onClick={() => setSelectedCell({ col: 'B', row: idx + 3, val: p.name })}
                         className="border-r border-slate-200 px-3 font-bold text-slate-900 cursor-pointer"
                       >
                         {p.name}
@@ -205,7 +240,7 @@ export const GoogleSheetLivePreview: React.FC<Props> = ({
 
           {/* TAB 2: Sales */}
           {activeSheetTab === 'sales' && (
-            <table className="w-full text-xs border-collapse">
+            <table className="w-full text-xs border-collapse min-w-[750px]">
               <thead>
                 <tr className="bg-slate-100 text-slate-500 font-bold text-[11px] text-center border-b border-slate-300 select-none">
                   <th className="w-10 py-1 bg-slate-200 border-r border-slate-300"></th>
@@ -220,9 +255,45 @@ export const GoogleSheetLivePreview: React.FC<Props> = ({
                   <th className="py-1 border-r border-slate-300 w-24">I</th>
                   <th className="py-1 w-36">J</th>
                 </tr>
-                {/* Royal Navy Header */}
-                <tr className="bg-[#1E3A8A] text-white font-bold text-[11px] text-center h-10 border-b border-blue-950">
+
+                {/* ROW 1: Navigation Buttons Bar */}
+                <tr className="bg-[#141E2E] text-white text-[11px] text-center h-9 border-b border-slate-700">
                   <td className="bg-slate-200 text-slate-700 font-bold border-r border-slate-300">1</td>
+                  <td className="border-r border-slate-700 px-2 font-bold text-slate-300 text-[10px]">⚡ বাটন প্যানেল:</td>
+                  <td className="border-r border-slate-700 px-2">
+                    <button
+                      type="button"
+                      onClick={() => setActiveSheetTab('products')}
+                      className="px-2 py-1 bg-[#0F766E] hover:bg-teal-800 text-white font-bold rounded text-[10px] transition-all flex items-center justify-center gap-1 mx-auto"
+                    >
+                      📦 পণ্য ও স্টক খাতা ➜
+                    </button>
+                  </td>
+                  <td className="border-r border-slate-700 px-2">
+                    <button
+                      type="button"
+                      onClick={() => setActiveSheetTab('monthly')}
+                      className="px-2 py-1 bg-[#065F46] hover:bg-emerald-900 text-white font-bold rounded text-[10px] transition-all flex items-center justify-center gap-1 mx-auto"
+                    >
+                      📊 লাভ-ক্ষতি হিসাব ➜
+                    </button>
+                  </td>
+                  <td className="border-r border-slate-700 px-2">
+                    <span className="px-2 py-1 bg-[#6E29C7] text-white font-bold rounded text-[10px] inline-block">
+                      🚀 স্মার্ট অ্যাপ ➜
+                    </span>
+                  </td>
+                  <td colSpan={5} className="border-r border-slate-700 px-2 text-slate-400 text-[10px]">
+                    দৈনিক বিক্রয় খাতা
+                  </td>
+                  <td className="px-2 text-blue-400 font-bold text-[10px]">
+                    ✅ বিক্রয় লেজার
+                  </td>
+                </tr>
+
+                {/* ROW 2: Royal Navy Header */}
+                <tr className="bg-[#1E3A8A] text-white font-bold text-[11px] text-center h-10 border-b border-blue-950">
+                  <td className="bg-slate-200 text-slate-700 font-bold border-r border-slate-300">2</td>
                   <td className="border-r border-blue-600/50 px-2">তারিখ</td>
                   <td className="border-r border-blue-600/50 px-3 text-left">পণ্যের নাম</td>
                   <td className="border-r border-blue-600/50 px-2">পরিমাণ</td>
@@ -248,7 +319,7 @@ export const GoogleSheetLivePreview: React.FC<Props> = ({
                       } hover:bg-blue-50/60`}
                     >
                       <td className="bg-slate-100 text-slate-500 font-bold text-center border-r border-slate-300 text-[11px] select-none">
-                        {idx + 2}
+                        {idx + 3}
                       </td>
                       <td className="border-r border-slate-200 px-2 text-center text-slate-600">{s.date}</td>
                       <td className="border-r border-slate-200 px-3 font-bold text-slate-900">{s.productName}</td>
@@ -271,7 +342,7 @@ export const GoogleSheetLivePreview: React.FC<Props> = ({
 
           {/* TAB 3: Monthly */}
           {activeSheetTab === 'monthly' && (
-            <table className="w-full text-xs border-collapse">
+            <table className="w-full text-xs border-collapse min-w-[750px]">
               <thead>
                 <tr className="bg-slate-100 text-slate-500 font-bold text-[11px] text-center border-b border-slate-300 select-none">
                   <th className="w-10 py-1 bg-slate-200 border-r border-slate-300"></th>
@@ -284,9 +355,45 @@ export const GoogleSheetLivePreview: React.FC<Props> = ({
                   <th className="py-1 border-r border-slate-300 w-28">G</th>
                   <th className="py-1 w-48">H</th>
                 </tr>
-                {/* Forest Green Header */}
-                <tr className="bg-[#065F46] text-white font-bold text-[11px] text-center h-10 border-b border-emerald-950">
+
+                {/* ROW 1: Navigation Buttons Bar */}
+                <tr className="bg-[#141E2E] text-white text-[11px] text-center h-9 border-b border-slate-700">
                   <td className="bg-slate-200 text-slate-700 font-bold border-r border-slate-300">1</td>
+                  <td className="border-r border-slate-700 px-2 font-bold text-slate-300 text-[10px]">⚡ বাটন প্যানেল:</td>
+                  <td className="border-r border-slate-700 px-2">
+                    <button
+                      type="button"
+                      onClick={() => setActiveSheetTab('products')}
+                      className="px-2 py-1 bg-[#0F766E] hover:bg-teal-800 text-white font-bold rounded text-[10px] transition-all flex items-center justify-center gap-1 mx-auto"
+                    >
+                      📦 পণ্য ও স্টক খাতা ➜
+                    </button>
+                  </td>
+                  <td className="border-r border-slate-700 px-2">
+                    <button
+                      type="button"
+                      onClick={() => setActiveSheetTab('sales')}
+                      className="px-2 py-1 bg-[#1E3A8A] hover:bg-blue-800 text-white font-bold rounded text-[10px] transition-all flex items-center justify-center gap-1 mx-auto"
+                    >
+                      🛒 দৈনিক বিক্রয় খাতা ➜
+                    </button>
+                  </td>
+                  <td className="border-r border-slate-700 px-2">
+                    <span className="px-2 py-1 bg-[#6E29C7] text-white font-bold rounded text-[10px] inline-block">
+                      🚀 স্মার্ট অ্যাপ ➜
+                    </span>
+                  </td>
+                  <td colSpan={3} className="border-r border-slate-700 px-2 text-slate-400 text-[10px]">
+                    মাসিক হিসাব খাতা
+                  </td>
+                  <td className="px-2 text-teal-300 font-bold text-[10px]">
+                    ✅ লাভ-ক্ষতি রিপোর্ট
+                  </td>
+                </tr>
+
+                {/* ROW 2: Forest Green Header */}
+                <tr className="bg-[#065F46] text-white font-bold text-[11px] text-center h-10 border-b border-emerald-950">
+                  <td className="bg-slate-200 text-slate-700 font-bold border-r border-slate-300">2</td>
                   <td className="border-r border-emerald-600/50 px-2 text-left">মাস (Month)</td>
                   <td className="border-r border-emerald-600/50 px-2">মোট অর্ডার</td>
                   <td className="border-r border-emerald-600/50 px-2">মোট বিক্রীত আইটেম</td>
@@ -309,7 +416,7 @@ export const GoogleSheetLivePreview: React.FC<Props> = ({
                       } hover:bg-emerald-50/60`}
                     >
                       <td className="bg-slate-100 text-slate-500 font-bold text-center border-r border-slate-300 text-[11px] select-none">
-                        {idx + 2}
+                        {idx + 3}
                       </td>
                       <td className="border-r border-slate-200 px-3 font-bold text-slate-900">{m.monthName}</td>
                       <td className="border-r border-slate-200 text-center px-2 text-slate-700">{m.totalSalesCount}</td>
@@ -332,11 +439,11 @@ export const GoogleSheetLivePreview: React.FC<Props> = ({
         </div>
 
         {/* Bottom Sheet Tabs Bar (Authentic Google Sheets style) */}
-        <div className="bg-slate-200 border-t border-slate-300 px-3 py-1.5 flex items-center gap-1">
+        <div className="bg-slate-200 border-t border-slate-300 px-2 sm:px-3 py-1.5 flex items-center gap-1 overflow-x-auto no-scrollbar w-full">
           <button
             type="button"
             onClick={() => setActiveSheetTab('products')}
-            className={`px-3 py-1.5 rounded-t-lg font-bold text-xs flex items-center gap-1.5 transition-all ${
+            className={`px-3 py-1.5 rounded-t-lg font-bold text-xs flex items-center gap-1.5 transition-all shrink-0 whitespace-nowrap ${
               activeSheetTab === 'products'
                 ? 'bg-white text-emerald-800 shadow-xs border-t-2 border-emerald-600'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-50'
@@ -349,7 +456,7 @@ export const GoogleSheetLivePreview: React.FC<Props> = ({
           <button
             type="button"
             onClick={() => setActiveSheetTab('sales')}
-            className={`px-3 py-1.5 rounded-t-lg font-bold text-xs flex items-center gap-1.5 transition-all ${
+            className={`px-3 py-1.5 rounded-t-lg font-bold text-xs flex items-center gap-1.5 transition-all shrink-0 whitespace-nowrap ${
               activeSheetTab === 'sales'
                 ? 'bg-white text-blue-800 shadow-xs border-t-2 border-blue-600'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-50'
@@ -362,7 +469,7 @@ export const GoogleSheetLivePreview: React.FC<Props> = ({
           <button
             type="button"
             onClick={() => setActiveSheetTab('monthly')}
-            className={`px-3 py-1.5 rounded-t-lg font-bold text-xs flex items-center gap-1.5 transition-all ${
+            className={`px-3 py-1.5 rounded-t-lg font-bold text-xs flex items-center gap-1.5 transition-all shrink-0 whitespace-nowrap ${
               activeSheetTab === 'monthly'
                 ? 'bg-white text-teal-800 shadow-xs border-t-2 border-teal-600'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-50'
